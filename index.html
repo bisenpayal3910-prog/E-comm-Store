@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecom Store - Online Shopping</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Shopping Cart Modal -->
+
+    <div id="cartModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="closeCart" class="close-modal"
+                    aria-label="Close cart">&times;</button>
+
+            <h2>Your Shopping Cart</h2>
+
+            <div id="cartItems">
+                <!-- cart items will appear here -->
+            </div>
+
+            <h3 id="cartTotal">Total: ₹0</h3>
+            <button id="checkoutButton" class="checkout-button" type="button">Continue to checkout</button>
+            <button id="clearCart">Clear Cart</button>
+
+        </div>
+
+
+    </div>
+
+    <div id="checkoutModal" class="modal hidden" aria-hidden="true">
+        <div class="modal-content checkout-content">
+            <button id="closeCheckout" class="close-modal" type="button" aria-label="Close checkout">&times;</button>
+            <p class="checkout-kicker">SECURE CHECKOUT · DEMO</p>
+            <h2>Complete your order</h2>
+            <div class="checkout-layout">
+                <form id="checkoutForm">
+                    <fieldset>
+                        <legend>Contact and delivery</legend>
+                        <label>Full name<input name="name" autocomplete="name" required placeholder="Alex Morgan"></label>
+                        <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="alex@example.com"></label>
+                        <label>Delivery address<input name="address" autocomplete="street-address" required placeholder="Street, city, postal code"></label>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Payment details</legend>
+                        <p class="demo-notice">Demo payment only. No real payment will be processed.</p>
+                        <label>Name on card<input name="cardName" autocomplete="cc-name" required placeholder="Alex Morgan"></label>
+                        <label>Card number<input name="cardNumber" inputmode="numeric" autocomplete="cc-number" required minlength="12" maxlength="19" pattern="[0-9 ]{12,19}" placeholder="4242 4242 4242 4242"></label>
+                        <div class="checkout-fields-row">
+                            <label>Expiry<input name="expiry" autocomplete="cc-exp" required pattern="(0[1-9]|1[0-2])/[0-9]{2}" placeholder="MM/YY"></label>
+                            <label>Security code<input name="cvc" inputmode="numeric" autocomplete="cc-csc" required pattern="[0-9]{3,4}" maxlength="4" placeholder="123"></label>
+                        </div>
+                    </fieldset>
+                    <button class="place-order-button" type="submit">Place demo order</button>
+                </form>
+                <aside class="checkout-summary">
+                    <h3>Order summary</h3>
+                    <div id="checkoutItems"></div>
+                    <p class="checkout-total"><span>Total</span><strong id="checkoutTotal">₹0</strong></p>
+                </aside>
+            </div>
+        </div>
+    </div>
+    <div id="successModal" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="successTitle" aria-modal="true">
+        <div class="modal-content success-content">
+            <div class="success-icon" aria-hidden="true">✓</div>
+            <p class="checkout-kicker">ORDER CONFIRMED</p>
+            <h2 id="successTitle">Thanks for your order!</h2>
+            <p id="successMessage">Your demo order is confirmed.</p>
+            <button id="continueShopping" class="place-order-button" type="button">Continue shopping</button>
+        </div>
+    </div>
+
+    <!-- Product details modal -->
+
+    <div id="productModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="closeModal" class="close-modal" aria-lable="Close">
+                &times;
+            </button>
+
+            <div id="productDetails">
+                
+            </div>
+
+        </div>
+
+    </div>
+
+    <header>
+        <a href="#" class="logo">EcomStore </a>
+
+        <div class="search-box">
+
+            <input type="search"
+            id="searchInput"
+            placeholder="Search Products...."
+            aria-label="Search products"
+            >
+        <button id="searchBtn">Search</button>    
+        </div>
+
+        <button class="cart-button" id="cartButton" type="button">
+            🛒 <span id="cartCount">0</span>
+        </button>
+    </header>
+
+    <main class="container">
+
+        <section class="hero">
+
+            <p class="eyebrow">Your Everyday Shopping Destination</p>
+            <h1>Find Your Next <span>Favorite</span></h1>
+            <p>
+                Discover Products you'll love at pricess you'll enjoy
+            </p>
+        </section>
+
+        <section class="product-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Explore products</h2>
+                    <p>Find the right products for you</p>
+                </div>
+
+            <select id="sortSelect" aria-label="Sort products">
+                <option value="default">Featured</option>
+                <option value="price-low">Price: Low To High</option>
+                <option value="price-high">Price: High To Low</option>
+                <option value="rating">Top Rated</option>
+            </select>    
+            </div>
+
+            <div class="categories" id="categoryFilters">
+
+                <button class="category-button active" data-category="all" >All Products</button>
+                <button class="category-button" data-category="electronics">Electronics</button>
+                <button class="category-button" data-category="fashion">Fashion</button>
+                <button class="category-button" data-category="computer">Computer Accesseries</button>
+                <button class="category-button" data-category="home">Home & Living</button>
+            </div>
+
+
+            <div class="product-grid" id="productGrid">
+
+                
+            </div>
+        </section> 
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 EcomStore Built as learning Project</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
