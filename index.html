@@ -89,8 +89,156 @@
 
     </div>
 
+    <!-- Account Auth & Profile Modal -->
+
+    <div id="profileModal" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="authOrProfileTitle" aria-modal="true">
+        <div class="modal-content profile-content">
+            <button id="closeProfile" class="close-modal" type="button" aria-label="Close account modal">&times;</button>
+
+            <!-- Login & Signup View (shown when logged out) -->
+            <section id="authSection" class="login-section">
+                <p class="checkout-kicker">ECOMSTORE ACCOUNT</p>
+                <h2 id="authOrProfileTitle" class="login-heading">Welcome to EcomStore</h2>
+                <p class="login-subtitle" id="authSubtitle">Sign in with your account or create a new one to view your profile details.</p>
+
+                <div class="role-switch" role="tablist" aria-label="Authentication mode">
+                    <button type="button" class="role-switch-btn active" data-auth-tab="login" role="tab" aria-selected="true">Login</button>
+                    <button type="button" class="role-switch-btn" data-auth-tab="signup" role="tab" aria-selected="false">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="login-form">
+                    <div class="profile-form-grid">
+                        <label class="full-span">Email Address
+                            <input type="email" id="loginEmail" name="email" required maxlength="80" placeholder="you@example.com">
+                        </label>
+                        <label class="full-span">Password
+                            <input type="password" id="loginPassword" name="password" required minlength="4" maxlength="40" placeholder="Enter your password">
+                        </label>
+                    </div>
+                    <p id="loginError" class="auth-error hidden" role="alert"></p>
+                    <div class="login-actions">
+                        <button type="submit" class="place-order-button">Login</button>
+                    </div>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signupForm" class="login-form hidden">
+                    <div class="profile-form-grid">
+                        <label>Full Name
+                            <input type="text" id="signupName" name="name" required maxlength="60" placeholder="Riya Sharma">
+                        </label>
+                        <label>Email Address
+                            <input type="email" id="signupEmail" name="email" required maxlength="80" placeholder="riya@example.com">
+                        </label>
+                        <label>Phone Number
+                            <input type="tel" id="signupPhone" name="phone" required maxlength="25" placeholder="+91 98765 11223">
+                        </label>
+                        <label>City / Location
+                            <input type="text" id="signupLocation" name="location" required maxlength="80" placeholder="Indore, Madhya Pradesh">
+                        </label>
+                        <label class="full-span">Password
+                            <input type="password" id="signupPassword" name="password" required minlength="4" maxlength="40" placeholder="Create a password (min 4 chars)">
+                        </label>
+                    </div>
+                    <p id="signupError" class="auth-error hidden" role="alert"></p>
+                    <div class="login-actions">
+                        <button type="submit" class="place-order-button">Create Account</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Profile Details View (shown only after login/signup) -->
+            <section id="profileSection" class="hidden">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar" aria-hidden="true">--</div>
+                    <div class="profile-title-group">
+                        <span class="profile-role-badge" id="profileRoleBadge">Member</span>
+                        <h2 id="profileTitle">Account Name</h2>
+                        <p class="profile-subtitle" id="profileLocationText">Location · ID</p>
+                    </div>
+                </div>
+
+                <div class="profile-stats-row">
+                    <div class="profile-stat">
+                        <span>Catalog Items</span>
+                        <strong id="profileTotalProducts">20</strong>
+                    </div>
+                    <div class="profile-stat">
+                        <span>Categories</span>
+                        <strong>4</strong>
+                    </div>
+                    <div class="profile-stat">
+                        <span>Cart Items</span>
+                        <strong id="profileCartCount">0</strong>
+                    </div>
+                </div>
+
+                <div id="profileDetailsView" class="profile-details-grid">
+                    <div class="profile-detail-item">
+                        <span>Full Name</span>
+                        <strong id="detailName">-</strong>
+                    </div>
+                    <div class="profile-detail-item">
+                        <span>Member ID</span>
+                        <strong id="detailMemberId">-</strong>
+                    </div>
+                    <div class="profile-detail-item">
+                        <span>Email Address</span>
+                        <strong id="detailEmail">-</strong>
+                    </div>
+                    <div class="profile-detail-item">
+                        <span>Phone Number</span>
+                        <strong id="detailPhone">-</strong>
+                    </div>
+                    <div class="profile-detail-item">
+                        <span>City / Address</span>
+                        <strong id="detailLocation">-</strong>
+                    </div>
+                    <div class="profile-detail-item">
+                        <span>Account Status</span>
+                        <strong class="status-active">Active · Verified</strong>
+                    </div>
+                </div>
+
+                <form id="profileEditForm" class="profile-edit-form hidden">
+                    <div class="profile-form-grid">
+                        <label>Full Name
+                            <input type="text" name="name" id="editProfileName" required maxlength="60">
+                        </label>
+                        <label>Email Address
+                            <input type="email" name="email" id="editProfileEmail" required maxlength="80">
+                        </label>
+                        <label>Phone Number
+                            <input type="tel" name="phone" id="editProfilePhone" required maxlength="25">
+                        </label>
+                        <label>City / Location
+                            <input type="text" name="location" id="editProfileLocation" required maxlength="80">
+                        </label>
+                    </div>
+                    <div class="profile-actions">
+                        <button type="submit" class="place-order-button">Save Details</button>
+                        <button type="button" id="cancelEditProfile" class="secondary-action-btn">Cancel</button>
+                    </div>
+                </form>
+
+                <div class="profile-footer-actions profile-actions-split" id="profileViewActions">
+                    <button type="button" id="editProfileBtn" class="place-order-button">Edit Details</button>
+                    <button type="button" id="logoutBtn" class="secondary-action-btn">Logout</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="sidebarBackdrop" class="sidebar-backdrop hidden" aria-hidden="true"></div>
+
     <header>
-        <a href="#" class="logo">EcomStore </a>
+        <div class="header-left">
+            <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <a href="#" class="logo">EcomStore </a>
+        </div>
 
         <div class="search-box">
 
@@ -102,58 +250,177 @@
         <button id="searchBtn">Search</button>    
         </div>
 
-        <button class="cart-button" id="cartButton" type="button">
-            🛒 <span id="cartCount">0</span>
-        </button>
+        <div class="header-actions">
+            <div class="header-auth-buttons" id="headerAuthButtons">
+                <button class="auth-header-btn auth-login-btn" id="headerLoginBtn" type="button">Login</button>
+                <button class="auth-header-btn auth-signup-btn" id="headerSignupBtn" type="button">Sign Up</button>
+            </div>
+
+            <button class="profile-button hidden" id="profileButton" type="button" aria-label="Open profile">
+                <span class="profile-mini-avatar" id="headerProfileAvatar">👤</span>
+                <span class="profile-button-label" id="headerProfileName">Account</span>
+            </button>
+
+            <button class="cart-button" id="cartButton" type="button">
+                🛒 <span id="cartCount">0</span>
+            </button>
+        </div>
     </header>
 
-    <main class="container">
+    <div class="page-layout">
+        <aside class="sidebar" id="sidebar" aria-label="Store navigation sidebar">
+            <div class="sidebar-mobile-head">
+                <span class="sidebar-brand-label">Menu</span>
+                <button id="closeSidebar" class="close-sidebar-btn" type="button" aria-label="Close sidebar">&times;</button>
+            </div>
 
-        <section class="hero">
+            <div class="sidebar-profile-card">
+                <div class="sidebar-profile-top">
+                    <div class="sidebar-avatar" id="sidebarAvatar" aria-hidden="true">👤</div>
+                    <div class="sidebar-profile-meta">
+                        <strong id="sidebarProfileName">Guest Visitor</strong>
+                        <span id="sidebarProfileRole">Not signed in</span>
+                    </div>
+                </div>
+                <p class="sidebar-profile-email" id="sidebarProfileEmail">Login or sign up to view your profile details.</p>
+                <div class="sidebar-auth-actions" id="sidebarAuthActions">
+                    <button type="button" id="sidebarLoginBtn" class="sidebar-profile-btn">Login</button>
+                    <button type="button" id="sidebarSignupBtn" class="sidebar-profile-btn sidebar-signup-btn">Sign Up</button>
+                </div>
+                <button type="button" id="sidebarProfileBtn" class="sidebar-profile-btn hidden">View Profile</button>
+            </div>
 
-            <p class="eyebrow">Your Everyday Shopping Destination</p>
-            <h1>Find Your Next <span>Favorite</span></h1>
-            <p>
-                Discover Products you'll love at pricess you'll enjoy
-            </p>
-        </section>
+            <nav class="sidebar-nav" aria-label="Sidebar links">
+                <p class="sidebar-section-title">Browse Store</p>
+                <button type="button" class="sidebar-link active" data-sidebar-category="all">
+                    <span>✦ All Products</span>
+                    <span class="sidebar-badge" id="sidebarTotalCount">20</span>
+                </button>
+                <button type="button" class="sidebar-link" data-sidebar-category="electronics">
+                    <span>🎧 Electronics</span>
+                </button>
+                <button type="button" class="sidebar-link" data-sidebar-category="fashion">
+                    <span>👜 Fashion</span>
+                </button>
+                <button type="button" class="sidebar-link" data-sidebar-category="computer">
+                    <span>💻 Computer Accessories</span>
+                </button>
+                <button type="button" class="sidebar-link" data-sidebar-category="home">
+                    <span>🪴 Home &amp; Living</span>
+                </button>
 
-        <section class="product-section">
+                <p class="sidebar-section-title">Quick Actions</p>
+                <button type="button" class="sidebar-link" id="sidebarTopRatedBtn">
+                    <span>★ Top Rated Picks</span>
+                </button>
+                <button type="button" class="sidebar-link" id="sidebarCartBtn">
+                    <span>🛒 Shopping Cart</span>
+                    <span class="sidebar-badge" id="sidebarCartBadge">0</span>
+                </button>
+                <a href="#footerSection" class="sidebar-link sidebar-anchor-link">
+                    <span>✉ Contact &amp; Support</span>
+                </a>
+            </nav>
 
-            <div class="section-heading">
+            <div class="sidebar-note">
+                <p class="sidebar-note-title" id="sidebarNoteTitle">Store Overview</p>
+                <p class="sidebar-note-text">Showing <strong id="sidebarShowingCount">20</strong> products across 4 curated categories.</p>
+            </div>
+        </aside>
 
-                <div>
-                    <h2>Explore products</h2>
-                    <p>Find the right products for you</p>
+        <main class="container">
+
+            <section class="hero">
+
+                <p class="eyebrow">Your Everyday Shopping Destination</p>
+                <h1>Find Your Next <span>Favorite</span></h1>
+                <p>
+                    Discover Products you'll love at pricess you'll enjoy
+                </p>
+            </section>
+
+            <section class="product-section" id="productSection">
+
+                <div class="section-heading">
+
+                    <div>
+                        <h2>Explore products</h2>
+                        <p>Find the right products for you</p>
+                    </div>
+
+                <select id="sortSelect" aria-label="Sort products">
+                    <option value="default">Featured</option>
+                    <option value="price-low">Price: Low To High</option>
+                    <option value="price-high">Price: High To Low</option>
+                    <option value="rating">Top Rated</option>
+                </select>    
                 </div>
 
-            <select id="sortSelect" aria-label="Sort products">
-                <option value="default">Featured</option>
-                <option value="price-low">Price: Low To High</option>
-                <option value="price-high">Price: High To Low</option>
-                <option value="rating">Top Rated</option>
-            </select>    
+                <div class="categories" id="categoryFilters">
+
+                    <button class="category-button active" data-category="all" >All Products</button>
+                    <button class="category-button" data-category="electronics">Electronics</button>
+                    <button class="category-button" data-category="fashion">Fashion</button>
+                    <button class="category-button" data-category="computer">Computer Accesseries</button>
+                    <button class="category-button" data-category="home">Home & Living</button>
+                </div>
+
+
+                <div class="product-grid" id="productGrid">
+
+                    
+                </div>
+            </section> 
+        </main>
+    </div>
+
+    <footer class="footer" id="footerSection">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo footer-logo">EcomStore</a>
+                <p class="footer-tagline">
+                    Your everyday shopping destination for curated electronics, fashion, workspace gear, and cozy home living essentials.
+                </p>
+                <p class="footer-admin-note" id="footerAccountStatus">Guest Session · <strong id="footerAdminName">Login required for profile</strong></p>
             </div>
 
-            <div class="categories" id="categoryFilters">
-
-                <button class="category-button active" data-category="all" >All Products</button>
-                <button class="category-button" data-category="electronics">Electronics</button>
-                <button class="category-button" data-category="fashion">Fashion</button>
-                <button class="category-button" data-category="computer">Computer Accesseries</button>
-                <button class="category-button" data-category="home">Home & Living</button>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#productSection">Explore Products</a></li>
+                    <li><button type="button" class="footer-link-btn" id="footerOpenCart">Shopping Cart</button></li>
+                    <li><button type="button" class="footer-link-btn" id="footerOpenLogin">Login</button></li>
+                    <li><button type="button" class="footer-link-btn" id="footerOpenSignup">Sign Up</button></li>
+                    <li><button type="button" class="footer-link-btn hidden" id="footerOpenProfile">My Profile</button></li>
+                </ul>
             </div>
 
-
-            <div class="product-grid" id="productGrid">
-
-                
+            <div class="footer-column">
+                <h3>Categories</h3>
+                <ul>
+                    <li><button type="button" class="footer-link-btn" data-footer-category="electronics">Electronics</button></li>
+                    <li><button type="button" class="footer-link-btn" data-footer-category="fashion">Fashion</button></li>
+                    <li><button type="button" class="footer-link-btn" data-footer-category="computer">Computer Accessories</button></li>
+                    <li><button type="button" class="footer-link-btn" data-footer-category="home">Home &amp; Living</button></li>
+                </ul>
             </div>
-        </section> 
-    </main>
 
-    <footer class="footer">
-        <p>© 2026 EcomStore Built as learning Project</p>
+            <div class="footer-column">
+                <h3>Contact &amp; Support</h3>
+                <ul class="footer-contact-list">
+                    <li>Email: <span id="footerAdminEmail">support@ecomstore.in</span></li>
+                    <li>Phone: <span id="footerAdminPhone">+91 98765 43210</span></li>
+                    <li>Location: <span id="footerAdminLocation">Indore, Madhya Pradesh</span></li>
+                    <li>Hours: Mon – Sat, 9:00 AM – 7:00 PM</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 EcomStore. Built as a learning project.</p>
+            <a href="#" class="back-to-top">Back to top ↑</a>
+        </div>
     </footer>
 
 

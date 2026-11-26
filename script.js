@@ -328,7 +328,10 @@ function renderProducts(productList) {
 
     productGrid.innerHTML = productsHTML
 
-
+    const sidebarShowingCount = document.getElementById("sidebarShowingCount")
+    if (sidebarShowingCount) {
+        sidebarShowingCount.textContent = String(productList.length)
+    }
 
 }
 
@@ -336,57 +339,24 @@ renderProducts(products)
 
 
 
-// Search Function
-
-function SearchProduct() {
-
-    //step 1 : get search input
-    const searchTerm = searchInput.value
-    .toLowerCase()
-    .trim()
-
-
-    // step 2 : filter matching products
-
-    const filteredProducts = products.filter(product => {
-        return product.name
-               .toLowerCase()
-               .includes(searchTerm)
-    })
-
-    // step 3 : Render Matching products
-
-    renderProducts(filteredProducts)
-
-// step 4 : show result in console  
-
-console.log("Search term :",searchTerm)
-console.log("matching Products :",filteredProducts.length)
-
-}
-
-
-// search button click
-
-searchBtn.addEventListener("click",SearchProduct)
-
-// search while typing
-
-searchInput.addEventListener("input" , SearchProduct)
-
-searchInput.addEventListener("keydown" , function(event) {
-    if(event.key === "Enter") {
-        SearchProduct()
-
-    }
-})
-
-
-
-
 // Apply Filters
 
 let selectedCategory = "all"
+
+function updateCategoryUI(category) {
+    document.querySelectorAll("#categoryFilters .category-button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.category === category)
+    })
+    document.querySelectorAll("[data-sidebar-category]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.sidebarCategory === category)
+    })
+}
+
+function setCategory(category) {
+    selectedCategory = category
+    updateCategoryUI(category)
+    applyFilters()
+}
 
 
 function applyFilters() {
@@ -458,9 +428,7 @@ categoryFilters.addEventListener("click",function(event) {
     const button = event.target.closest("button[data-category]")
 
     if (!button) return
-    selectedCategory = button.dataset.category
-
-    applyFilters()
+    setCategory(button.dataset.category)
 })
 
 sortSelect.addEventListener("change" , applyFilters)
@@ -620,6 +588,12 @@ function updateCart() {
     )
 
     cartCount.textContent = totaItems
+
+    const sidebarCartBadge = document.getElementById("sidebarCartBadge")
+    if (sidebarCartBadge) sidebarCartBadge.textContent = totaItems
+
+    const profileCartCount = document.getElementById("profileCartCount")
+    if (profileCartCount) profileCartCount.textContent = totaItems
 
     cartItemsContainer.innerHTML = ""
 
@@ -804,9 +778,475 @@ document.addEventListener("keydown", event => {
         checkoutModal.setAttribute("aria-hidden", "true")
         successModal.classList.add("hidden")
         successModal.setAttribute("aria-hidden", "true")
+        closeProfileModal()
+        closeSidebarDrawer()
     }
 })
 
-// initial cart display
+// =================================
+// SIDEBAR & FOOTER NAVIGATION
+// =================================
 
+const sidebar = document.getElementById("sidebar")
+const sidebarToggle = document.getElementById("sidebarToggle")
+const closeSidebar = document.getElementById("closeSidebar")
+const sidebarBackdrop = document.getElementById("sidebarBackdrop")
+const sidebarTopRatedBtn = document.getElementById("sidebarTopRatedBtn")
+const sidebarCartBtn = document.getElementById("sidebarCartBtn")
+const sidebarTotalCount = document.getElementById("sidebarTotalCount")
+const footerOpenCart = document.getElementById("footerOpenCart")
+
+if (sidebarTotalCount) {
+    sidebarTotalCount.textContent = String(products.length)
+}
+
+function openSidebarDrawer() {
+    sidebar.classList.add("open")
+    sidebarBackdrop.classList.remove("hidden")
+    sidebarToggle.setAttribute("aria-expanded", "true")
+}
+
+function closeSidebarDrawer() {
+    sidebar.classList.remove("open")
+    sidebarBackdrop.classList.add("hidden")
+    sidebarToggle.setAttribute("aria-expanded", "false")
+}
+
+sidebarToggle.addEventListener("click", () => {
+    if (sidebar.classList.contains("open")) {
+        closeSidebarDrawer()
+    } else {
+        openSidebarDrawer()
+    }
+})
+
+closeSidebar.addEventListener("click", closeSidebarDrawer)
+sidebarBackdrop.addEventListener("click", closeSidebarDrawer)
+
+document.querySelectorAll("[data-sidebar-category]").forEach(button => {
+    button.addEventListener("click", () => {
+        setCategory(button.dataset.sidebarCategory)
+        closeSidebarDrawer()
+        document.getElementById("productSection")?.scrollIntoView({ behavior: "smooth" })
+    })
+})
+
+sidebarTopRatedBtn.addEventListener("click", () => {
+    sortSelect.value = "rating"
+    setCategory("all")
+    closeSidebarDrawer()
+    document.getElementById("productSection")?.scrollIntoView({ behavior: "smooth" })
+})
+
+sidebarCartBtn.addEventListener("click", () => {
+    closeSidebarDrawer()
+    cartModal.classList.remove("hidden")
+    updateCart()
+})
+
+document.querySelectorAll(".sidebar-anchor-link").forEach(link => {
+    link.addEventListener("click", closeSidebarDrawer)
+})
+
+footerOpenCart.addEventListener("click", () => {
+    cartModal.classList.remove("hidden")
+    updateCart()
+})
+
+document.querySelectorAll("[data-footer-category]").forEach(button => {
+    button.addEventListener("click", () => {
+        setCategory(button.dataset.footerCategory)
+        document.getElementById("productSection")?.scrollIntoView({ behavior: "smooth" })
+    })
+})
+
+// =================================
+// ACCOUNT AUTH (LOGIN / SIGNUP) & PROFILE
+// =================================
+
+const AUTH_STORAGE_KEY = "ecomStoreAuthAccount"
+const USERS_STORAGE_KEY = "ecomStoreUsers"
+
+try {
+    localStorage.removeItem("ecomStoreAdminProfile")
+} catch (error) {
+    console.warn("Storage cleanup skipped:", error)
+}
+
+function loadRegisteredUsers() {
+    try {
+        const list = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || "[]")
+        return Array.isArray(list) ? list.filter(u => u && u.email && u.password) : []
+    } catch (error) {
+        console.warn("Could not load users:", error)
+        return []
+    }
+}
+
+function saveRegisteredUsers(users) {
+    try {
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+    } catch (error) {
+        console.warn("Could not save users:", error)
+    }
+}
+
+function loadCurrentAccount() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null")
+        if (saved && typeof saved === "object" && saved.name && saved.email) {
+            return {
+                memberId: String(saved.memberId || "#MBR-101"),
+                name: String(saved.name),
+                email: String(saved.email),
+                phone: String(saved.phone || ""),
+                location: String(saved.location || "")
+            }
+        }
+    } catch (error) {
+        console.warn("Could not load account:", error)
+    }
+    return null
+}
+
+let currentAccount = loadCurrentAccount()
+let activeAuthTab = "login"
+
+const profileModal = document.getElementById("profileModal")
+const closeProfile = document.getElementById("closeProfile")
+const authSection = document.getElementById("authSection")
+const profileSection = document.getElementById("profileSection")
+const authSubtitle = document.getElementById("authSubtitle")
+const authOrProfileTitle = document.getElementById("authOrProfileTitle")
+
+const loginForm = document.getElementById("loginForm")
+const signupForm = document.getElementById("signupForm")
+const loginError = document.getElementById("loginError")
+const signupError = document.getElementById("signupError")
+
+const headerAuthButtons = document.getElementById("headerAuthButtons")
+const headerLoginBtn = document.getElementById("headerLoginBtn")
+const headerSignupBtn = document.getElementById("headerSignupBtn")
+const profileButton = document.getElementById("profileButton")
+
+const sidebarAuthActions = document.getElementById("sidebarAuthActions")
+const sidebarLoginBtn = document.getElementById("sidebarLoginBtn")
+const sidebarSignupBtn = document.getElementById("sidebarSignupBtn")
+const sidebarProfileBtn = document.getElementById("sidebarProfileBtn")
+
+const footerOpenLogin = document.getElementById("footerOpenLogin")
+const footerOpenSignup = document.getElementById("footerOpenSignup")
+const footerOpenProfile = document.getElementById("footerOpenProfile")
+
+const editProfileBtn = document.getElementById("editProfileBtn")
+const cancelEditProfile = document.getElementById("cancelEditProfile")
+const logoutBtn = document.getElementById("logoutBtn")
+const profileDetailsView = document.getElementById("profileDetailsView")
+const profileViewActions = document.getElementById("profileViewActions")
+const profileEditForm = document.getElementById("profileEditForm")
+
+function getInitials(name) {
+    const parts = String(name || "M").trim().split(/\s+/).filter(Boolean)
+    if (parts.length === 0) return "MB"
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+function saveCurrentAccount() {
+    try {
+        if (currentAccount) {
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentAccount))
+        } else {
+            localStorage.removeItem(AUTH_STORAGE_KEY)
+        }
+    } catch (error) {
+        console.warn("Could not save account state:", error)
+    }
+}
+
+function clearAuthErrors() {
+    loginError.textContent = ""
+    loginError.classList.add("hidden")
+    signupError.textContent = ""
+    signupError.classList.add("hidden")
+}
+
+function showAuthError(el, message) {
+    el.textContent = message
+    el.classList.remove("hidden")
+}
+
+function setAuthTab(tab) {
+    activeAuthTab = tab === "signup" ? "signup" : "login"
+    clearAuthErrors()
+
+    document.querySelectorAll("[data-auth-tab]").forEach(btn => {
+        const isActive = btn.dataset.authTab === activeAuthTab
+        btn.classList.toggle("active", isActive)
+        btn.setAttribute("aria-selected", String(isActive))
+    })
+
+    const isSignup = activeAuthTab === "signup"
+    loginForm.classList.toggle("hidden", isSignup)
+    signupForm.classList.toggle("hidden", !isSignup)
+
+    authOrProfileTitle.textContent = isSignup ? "Create your account" : "Welcome back"
+    authSubtitle.textContent = isSignup
+        ? "Sign up to save your profile details and manage your shopping experience."
+        : "Login with your email and password to view your profile details."
+}
+
+function renderAccountUI() {
+    const footerStatus = document.getElementById("footerAccountStatus")
+    const isLoggedIn = Boolean(currentAccount)
+
+    headerAuthButtons.classList.toggle("hidden", isLoggedIn)
+    profileButton.classList.toggle("hidden", !isLoggedIn)
+
+    sidebarAuthActions.classList.toggle("hidden", isLoggedIn)
+    sidebarProfileBtn.classList.toggle("hidden", !isLoggedIn)
+
+    footerOpenLogin.classList.toggle("hidden", isLoggedIn)
+    footerOpenSignup.classList.toggle("hidden", isLoggedIn)
+    footerOpenProfile.classList.toggle("hidden", !isLoggedIn)
+
+    if (!isLoggedIn) {
+        document.getElementById("sidebarAvatar").textContent = "👤"
+        document.getElementById("sidebarProfileName").textContent = "Guest Visitor"
+        document.getElementById("sidebarProfileRole").textContent = "Not signed in"
+        document.getElementById("sidebarProfileEmail").textContent = "Login or sign up to view your profile details."
+
+        footerStatus.textContent = "Guest Session · "
+        const guestStrong = document.createElement("strong")
+        guestStrong.id = "footerAdminName"
+        guestStrong.textContent = "Login or Sign Up to continue"
+        footerStatus.appendChild(guestStrong)
+
+        document.getElementById("footerAdminEmail").textContent = "support@ecomstore.in"
+        document.getElementById("footerAdminPhone").textContent = "+91 98765 43210"
+        document.getElementById("footerAdminLocation").textContent = "Indore, Madhya Pradesh"
+        return
+    }
+
+    const initials = getInitials(currentAccount.name)
+    const firstName = currentAccount.name.trim().split(/\s+/)[0] || "Account"
+
+    document.getElementById("headerProfileAvatar").textContent = initials
+    document.getElementById("headerProfileName").textContent = firstName
+
+    document.getElementById("sidebarAvatar").textContent = initials
+    document.getElementById("sidebarProfileName").textContent = currentAccount.name
+    document.getElementById("sidebarProfileRole").textContent = `Member · ${currentAccount.memberId}`
+    document.getElementById("sidebarProfileEmail").textContent = currentAccount.email
+
+    document.getElementById("profileAvatar").textContent = initials
+    document.getElementById("profileRoleBadge").textContent = "Verified Member"
+    document.getElementById("profileTitle").textContent = currentAccount.name
+    document.getElementById("profileLocationText").textContent = `${currentAccount.location} · ID: ${currentAccount.memberId}`
+    document.getElementById("profileTotalProducts").textContent = String(products.length)
+
+    document.getElementById("detailName").textContent = currentAccount.name
+    document.getElementById("detailMemberId").textContent = currentAccount.memberId
+    document.getElementById("detailEmail").textContent = currentAccount.email
+    document.getElementById("detailPhone").textContent = currentAccount.phone
+    document.getElementById("detailLocation").textContent = currentAccount.location
+
+    footerStatus.textContent = "Signed in as "
+    const accountStrong = document.createElement("strong")
+    accountStrong.id = "footerAdminName"
+    accountStrong.textContent = currentAccount.name
+    footerStatus.appendChild(accountStrong)
+    footerStatus.append(` · ${currentAccount.memberId}`)
+
+    document.getElementById("footerAdminEmail").textContent = currentAccount.email
+    document.getElementById("footerAdminPhone").textContent = currentAccount.phone
+    document.getElementById("footerAdminLocation").textContent = currentAccount.location
+}
+
+function showProfileEditMode(isEditing) {
+    profileDetailsView.classList.toggle("hidden", isEditing)
+    profileViewActions.classList.toggle("hidden", isEditing)
+    profileEditForm.classList.toggle("hidden", !isEditing)
+
+    if (isEditing && currentAccount) {
+        document.getElementById("editProfileName").value = currentAccount.name
+        document.getElementById("editProfileEmail").value = currentAccount.email
+        document.getElementById("editProfilePhone").value = currentAccount.phone
+        document.getElementById("editProfileLocation").value = currentAccount.location
+        document.getElementById("editProfileName").focus()
+    }
+}
+
+function syncModalView(preferredTab = "login") {
+    const isLoggedIn = Boolean(currentAccount)
+    authSection.classList.toggle("hidden", isLoggedIn)
+    profileSection.classList.toggle("hidden", !isLoggedIn)
+
+    if (isLoggedIn) {
+        showProfileEditMode(false)
+    } else {
+        setAuthTab(preferredTab)
+    }
+}
+
+function openAuthOrProfileModal(preferredTab = "login") {
+    closeSidebarDrawer()
+    renderAccountUI()
+    syncModalView(preferredTab)
+    profileModal.classList.remove("hidden")
+    profileModal.setAttribute("aria-hidden", "false")
+
+    if (!currentAccount) {
+        const focusId = activeAuthTab === "signup" ? "signupName" : "loginEmail"
+        document.getElementById(focusId)?.focus()
+    }
+}
+
+function closeProfileModal() {
+    profileModal.classList.add("hidden")
+    profileModal.setAttribute("aria-hidden", "true")
+    showProfileEditMode(false)
+    clearAuthErrors()
+}
+
+document.querySelectorAll("[data-auth-tab]").forEach(btn => {
+    btn.addEventListener("click", () => setAuthTab(btn.dataset.authTab))
+})
+
+headerLoginBtn.addEventListener("click", () => openAuthOrProfileModal("login"))
+headerSignupBtn.addEventListener("click", () => openAuthOrProfileModal("signup"))
+sidebarLoginBtn.addEventListener("click", () => openAuthOrProfileModal("login"))
+sidebarSignupBtn.addEventListener("click", () => openAuthOrProfileModal("signup"))
+footerOpenLogin.addEventListener("click", () => openAuthOrProfileModal("login"))
+footerOpenSignup.addEventListener("click", () => openAuthOrProfileModal("signup"))
+
+profileButton.addEventListener("click", () => openAuthOrProfileModal())
+sidebarProfileBtn.addEventListener("click", () => openAuthOrProfileModal())
+footerOpenProfile.addEventListener("click", () => openAuthOrProfileModal())
+closeProfile.addEventListener("click", closeProfileModal)
+
+profileModal.addEventListener("click", event => {
+    if (event.target === profileModal) closeProfileModal()
+})
+
+signupForm.addEventListener("submit", event => {
+    event.preventDefault()
+    clearAuthErrors()
+    if (!signupForm.reportValidity()) return
+
+    const name = document.getElementById("signupName").value.trim()
+    const email = document.getElementById("signupEmail").value.trim().toLowerCase()
+    const phone = document.getElementById("signupPhone").value.trim()
+    const location = document.getElementById("signupLocation").value.trim()
+    const password = document.getElementById("signupPassword").value
+
+    const users = loadRegisteredUsers()
+    const alreadyExists = users.some(u => u.email.toLowerCase() === email)
+    if (alreadyExists) {
+        showAuthError(signupError, "An account with this email already exists. Please login instead.")
+        return
+    }
+
+    const newUser = {
+        memberId: `#MBR-${101 + users.length}`,
+        name,
+        email,
+        phone,
+        location,
+        password
+    }
+
+    users.push(newUser)
+    saveRegisteredUsers(users)
+
+    currentAccount = {
+        memberId: newUser.memberId,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        location: newUser.location
+    }
+
+    saveCurrentAccount()
+    signupForm.reset()
+    renderAccountUI()
+    syncModalView()
+    updateCart()
+})
+
+loginForm.addEventListener("submit", event => {
+    event.preventDefault()
+    clearAuthErrors()
+    if (!loginForm.reportValidity()) return
+
+    const email = document.getElementById("loginEmail").value.trim().toLowerCase()
+    const password = document.getElementById("loginPassword").value
+
+    const users = loadRegisteredUsers()
+    const matched = users.find(u => u.email.toLowerCase() === email && u.password === password)
+
+    if (!matched) {
+        showAuthError(
+            loginError,
+            users.length === 0
+                ? "No account found yet. Please click Sign Up to create your account first."
+                : "Invalid email or password. Please check your credentials or Sign Up."
+        )
+        return
+    }
+
+    currentAccount = {
+        memberId: matched.memberId || "#MBR-101",
+        name: matched.name,
+        email: matched.email,
+        phone: matched.phone,
+        location: matched.location
+    }
+
+    saveCurrentAccount()
+    loginForm.reset()
+    renderAccountUI()
+    syncModalView()
+    updateCart()
+})
+
+logoutBtn.addEventListener("click", () => {
+    currentAccount = null
+    saveCurrentAccount()
+    loginForm.reset()
+    signupForm.reset()
+    renderAccountUI()
+    syncModalView("login")
+})
+
+editProfileBtn.addEventListener("click", () => showProfileEditMode(true))
+cancelEditProfile.addEventListener("click", () => showProfileEditMode(false))
+
+profileEditForm.addEventListener("submit", event => {
+    event.preventDefault()
+    if (!profileEditForm.reportValidity() || !currentAccount) return
+
+    const oldEmail = currentAccount.email.toLowerCase()
+    const updated = {
+        memberId: currentAccount.memberId,
+        name: document.getElementById("editProfileName").value.trim() || currentAccount.name,
+        email: document.getElementById("editProfileEmail").value.trim().toLowerCase() || currentAccount.email,
+        phone: document.getElementById("editProfilePhone").value.trim() || currentAccount.phone,
+        location: document.getElementById("editProfileLocation").value.trim() || currentAccount.location
+    }
+
+    const users = loadRegisteredUsers().map(u =>
+        u.email.toLowerCase() === oldEmail ? { ...u, ...updated } : u
+    )
+    saveRegisteredUsers(users)
+
+    currentAccount = updated
+    saveCurrentAccount()
+    renderAccountUI()
+    showProfileEditMode(false)
+})
+
+// initial display
+
+renderAccountUI()
 updateCart()
